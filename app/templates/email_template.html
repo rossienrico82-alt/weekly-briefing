@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Briefing</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f2f3f5;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1f2328;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f2f3f5;padding:24px 0;">
+<tr><td align="center">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;max-width:600px;width:100%;">
+
+  <tr><td style="background-color:#2b2d42;padding:28px 24px;">
+    <h1 style="margin:0;color:#ffffff;font-size:22px;">📅 Buona domenica, Enrico</h1>
+    <p style="margin:6px 0 0;color:#c9ccd6;font-size:14px;">Ecco il riepilogo della tua prossima settimana ({{ week_start_label }} – {{ week_end_label }})</p>
+  </td></tr>
+
+  <tr><td style="padding:24px;">
+    <h2 style="font-size:17px;margin:0 0 12px;color:#2b2d42;">📅 Impegni della settimana</h2>
+    {% for day in days %}
+    <div style="margin-bottom:16px;">
+      <div style="font-weight:600;font-size:14px;color:#2b2d42;border-bottom:1px solid #e6e8ec;padding-bottom:4px;margin-bottom:6px;">{{ day.label }}</div>
+      {% if day.events %}
+        {% for ev in day.events %}
+        <div style="font-size:14px;padding:4px 0;">
+          {% if ev.all_day %}
+            📌 <strong>Tutto il giorno</strong> – {{ ev.title }}
+          {% else %}
+            🕒 <strong>{{ ev.start_time }}–{{ ev.end_time }}</strong> – {{ ev.title }}
+          {% endif %}
+          {% if ev.location %}<br><span style="color:#6b7280;font-size:12px;">📍 {{ ev.location }}</span>{% endif %}
+          {% if ev.meet_link %}<br><span style="color:#6b7280;font-size:12px;">🔗 <a href="{{ ev.meet_link }}" style="color:#4c6ef5;">Google Meet</a></span>{% endif %}
+        </div>
+        {% endfor %}
+      {% else %}
+        <div style="font-size:13px;color:#9aa0ac;font-style:italic;">Nessun impegno in calendario.</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </td></tr>
+
+  <tr><td style="padding:0 24px 24px;">
+    <h2 style="font-size:17px;margin:0 0 12px;color:#2b2d42;">🌤 Meteo – Gradara (PU)</h2>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      {% for w in weather %}
+      <tr>
+        <td style="padding:6px 0;font-size:14px;border-bottom:1px solid #f0f1f3;">
+          <strong>{{ w.label }}</strong>
+          {% if w.available %}
+            &nbsp;&nbsp;{{ w.emoji }} {{ w.text }}
+            &nbsp;&nbsp;<span style="color:#6b7280;">Min {{ w.min }}°C | Max {{ w.max }}°C</span>
+            {% if w.rain_prob is not none %}<span style="color:#6b7280;"> | 🌧 {{ w.rain_prob }}%</span>{% endif %}
+            {% if w.highlight %}&nbsp;<span style="background:#fff3cd;padding:1px 6px;border-radius:6px;font-size:12px;">{{ w.highlight }}</span>{% endif %}
+          {% else %}
+            &nbsp;&nbsp;<span style="color:#9aa0ac;font-style:italic;">Dati meteo non disponibili per questo giorno.</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </td></tr>
+
+  {% if ansa_news %}
+  <tr><td style="padding:0 24px 24px;">
+    <h2 style="font-size:17px;margin:0 0 12px;color:#2b2d42;">📰 ANSA</h2>
+    {% for n in ansa_news %}
+    <div style="margin-bottom:12px;font-size:14px;">
+      <a href="{{ n.link }}" style="color:#2b2d42;font-weight:600;text-decoration:none;">{{ n.title }}</a>
+      <div style="color:#4b5563;font-size:13px;margin-top:2px;">{{ n.summary }}</div>
+    </div>
+    {% endfor %}
+  </td></tr>
+  {% elif ansa_error %}
+  <tr><td style="padding:0 24px 24px;"><p style="font-size:13px;color:#9aa0ac;">⚠️ ANSA non disponibile in questo momento.</p></td></tr>
+  {% endif %}
+
+  {% if sole_news %}
+  <tr><td style="padding:0 24px 24px;">
+    <h2 style="font-size:17px;margin:0 0 12px;color:#2b2d42;">📰 Il Sole 24 Ore</h2>
+    {% for n in sole_news %}
+    <div style="margin-bottom:12px;font-size:14px;">
+      <a href="{{ n.link }}" style="color:#2b2d42;font-weight:600;text-decoration:none;">{{ n.title }}</a>
+      <div style="color:#4b5563;font-size:13px;margin-top:2px;">{{ n.summary }}</div>
+    </div>
+    {% endfor %}
+  </td></tr>
+  {% elif sole_error %}
+  <tr><td style="padding:0 24px 24px;"><p style="font-size:13px;color:#9aa0ac;">⚠️ Il Sole 24 Ore non disponibile in questo momento.</p></td></tr>
+  {% endif %}
+
+  {% if week_summary %}
+  <tr><td style="padding:0 24px 28px;">
+    <div style="background:#eef1ff;border-radius:10px;padding:16px;font-size:14px;color:#2b2d42;">
+      <strong>⭐ In sintesi</strong><br>{{ week_summary }}
+    </div>
+  </td></tr>
+  {% endif %}
+
+  <tr><td style="background:#f7f7f9;padding:16px 24px;text-align:center;">
+    <span style="font-size:12px;color:#9aa0ac;">Weekly Briefing automatico · generato il {{ generated_at }}</span>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>
