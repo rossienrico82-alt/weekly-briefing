@@ -1,14 +1,16 @@
 name: Weekly Briefing
 
 on:
-  # Due orari per coprire ora solare (CET, UTC+1) e ora legale (CEST, UTC+2):
-  # 17:00 UTC = 18:00 CET (inverno) · 16:00 UTC = 18:00 CEST (estate)
-  # Lo script stesso verifica di essere nella finestra corretta e non invia
-  # due volte (idempotenza gestita dal database + is_sunday_evening_window).
+  # Due orari per coprire ora solare (CET, UTC+1) e ora legale (CEST, UTC+2).
+  # Il cron nativo di GitHub Actions puo' scattare in ritardo o saltare del
+  # tutto sui repository poco attivi: come rete di sicurezza affidabile,
+  # un servizio esterno gratuito (cron-job.org) chiama questo stesso workflow
+  # via API esattamente alle 18:00 Europe/Rome ogni domenica (vedi README).
   schedule:
     - cron: "0 17 * * 0"
     - cron: "0 16 * * 0"
-  # Permette anche l'avvio manuale da GitHub ("Run workflow"), con invio forzato
+  # Permette l'avvio manuale da GitHub ("Run workflow") E la chiamata da
+  # cron-job.org, entrambi con invio forzato.
   workflow_dispatch:
     inputs:
       force:
@@ -28,6 +30,22 @@ jobs:
 
       - name: Installa dipendenze
         run: pip install -r requirements.txt
+
+      - name: Determina la settimana corrente (per la cache anti-duplicati)
+        id: week
+        run: echo "week=$(date -u +%G-W%V)" >> "$GITHUB_OUTPUT"
+
+      - name: Ripristina storico invii
+        # Con piu' trigger nella stessa domenica (cron GitHub + cron-job.org),
+        # questa cache mantiene il database SQLite tra un'esecuzione e l'altra
+        # cosi' il controllo "email gia' inviata questa settimana" funziona
+        # davvero ed evita email doppie.
+        uses: actions/cache@v4
+        with:
+          path: data
+          key: briefing-data-${{ steps.week.outputs.week }}
+          restore-keys: |
+            briefing-data-
 
       - name: Esegui briefing
         env:
