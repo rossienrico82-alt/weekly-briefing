@@ -72,3 +72,11 @@ jobs:
           name: briefing-data
           path: data/
           retention-days: 14
+
+  # Evita che GitHub disabiliti il workflow dopo 60 giorni di inattivita'.
+  keepalive:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - uses: gautamkrishnar/keepalive-workflow@v2
