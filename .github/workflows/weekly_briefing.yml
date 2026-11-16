@@ -73,10 +73,13 @@ jobs:
           path: data/
           retention-days: 14
 
-  # Evita che GitHub disabiliti il workflow dopo 60 giorni di inattivita'.
+      # Evita che GitHub disabiliti il workflow dopo 60 giorni di inattivita'.
   keepalive:
     runs-on: ubuntu-latest
     permissions:
       actions: write
     steps:
-      - uses: gautamkrishnar/keepalive-workflow@v2
+      - name: Riabilita il workflow (azzera il contatore dei 60 giorni)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow enable weekly_briefing.yml --repo "${{ github.repository }}"
